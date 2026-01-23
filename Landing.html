@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Talk AI - Your Trusted AI Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            padding: 20px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 80px 0 60px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            background: linear-gradient(to right, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .cta-button {
+            background: #fff;
+            color: #059669;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .chat-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px;
+            margin: 60px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-container {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ai-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            position: relative;
+        }
+
+        .ai-avatar::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+            animation: avatarGlow 2s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes avatarGlow {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0; }
+        }
+
+        .chat-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            line-height: 1.5;
+        }
+
+        .ai-message .message-bubble {
+            background: #10b981;
+            color: #fff;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            flex-direction: row-reverse;
+        }
+
+        .user-message .message-bubble {
+            background: #e9ecef;
+            color: #333;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: #fff;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid #e9ecef;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #10b981;
+        }
+
+        .send-button {
+            background: #10b981;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .send-button:hover {
+            background: #059669;
+            transform: scale(1.05);
+        }
+
+        .voice-button {
+            background: #fff;
+            color: #10b981;
+            border: 2px solid #10b981;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .voice-button:hover {
+            background: #ecfdf5;
+            transform: scale(1.05);
+        }
+
+        .voice-button.listening {
+            background: #10b981;
+            color: #fff;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .voice-indicator {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            background: #ff4444;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            display: none;
+        }
+
+        .voice-button.listening .voice-indicator {
+            display: block;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            padding: 80px 0;
+        }
+
+        .features h2, .features > p {
+            grid-column: 1 / -1;
+        }
+
+        .pricing-section {
+            padding: 80px 0;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+            position: relative;
+            text-align: left;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .pricing-card.popular {
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid #fff;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.popular:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            right: 30px;
+            background: #fff;
+            color: #10b981;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .plan-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .plan-price {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .plan-period {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 25px;
+        }
+
+        .plan-description {
+            font-size: 15px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            font-size: 15px;
+            opacity: 0.9;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .plan-features li::before {
+            content: "✓";
+            color: #34d399;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .plan-limitations {
+            list-style: none;
+            margin-bottom: 30px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .plan-limitations li {
+            padding: 8px 0;
+            font-size: 14px;
+            opacity: 0.7;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .plan-limitations li::before {
+            content: "✗";
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: bold;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .plan-button {
+            width: 100%;
+            background: #fff;
+            color: #10b981;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .plan-button:hover {
+            background: #f0fdf4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .pricing-card.popular .plan-button {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .pricing-card.popular .plan-button:hover {
+            background: #059669;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-card.popular {
+                transform: scale(1);
+            }
+            .pricing-card.popular:hover {
+                transform: translateY(-10px);
+            }
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 40px; }
+            .subtitle { font-size: 18px; }
+            .nav-links { display: none; }
+            .message-bubble { max-width: 85%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="logo">🛡️ Safe Talk AI</div>
+                <ul class="nav-links">
+                    <li><a href="#features" onclick="scrollToSection(event, 'features')">Features</a></li>
+                    <li><a href="#about" onclick="scrollToSection(event, 'about')">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <h1>Your Trusted AI Companion</h1>
+            <p class="subtitle">Safe, secure, and intelligent conversations at your fingertips</p>
+            <button class="cta-button" onclick="scrollToChat()">Start Talking Now</button>
+        </section>
+
+        <section class="chat-section">
+            <h2 style="text-align: center; font-size: 42px; margin-bottom: 20px; font-weight: 700;">Experience Safe Talk AI</h2>
+            <p style="text-align: center; font-size: 18px; opacity: 0.9; margin-bottom: 40px;">Try our interactive demo and ask me anything about our platform</p>
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="ai-avatar">✨</div>
+                    <div>
+                        <div class="chat-title">Safe Talk AI Assistant</div>
+                        <div style="font-size: 14px; opacity: 0.9;">Always here to help</div>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">
+                        <div class="message-bubble">
+                            👋 Hello! I'm Safe Talk AI. I'm here to tell you all about our platform and how we prioritize your privacy and security. What would you like to know?
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about Safe Talk AI..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button class="voice-button" id="voiceButton" onclick="toggleVoice()">
+                        🎤
+                        <span class="voice-indicator"></span>
+                    </button>
+                    <button class="send-button" onclick="sendMessage()">➤</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <h2 style="text-align: center; grid-column: 1 / -1; font-size: 42px; margin-bottom: 20px; font-weight: 700;">Powerful Features Built In</h2>
+            <p style="text-align: center; grid-column: 1 / -1; font-size: 18px; opacity: 0.9; margin-bottom: 30px;">Everything you need for secure, intelligent conversations</p>
+            <div class="feature-card">
+                <div class="feature-icon">🎤</div>
+                <h3>Voice & Text Chat</h3>
+                <p>Seamlessly switch between typing and talking with advanced voice recognition and natural text-to-speech.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>End-to-End Encryption</h3>
+                <p>Your conversations are completely private and secure with military-grade encryption.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>Advanced AI</h3>
+                <p>Powered by cutting-edge language models for natural, intelligent conversations.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Instant Responses</h3>
+                <p>Get immediate, thoughtful answers to all your questions in real-time.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>24/7 Availability</h3>
+                <p>Access Safe Talk AI anytime, anywhere, from any device.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Personalized Experience</h3>
+                <p>Tailored conversations that adapt to your needs and preferences.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>No Data Retention</h3>
+                <p>We don't store your conversations. Your privacy is our priority.</p>
+            </div>
+        </section>
+
+        <section class="pricing-section">
+            <div class="container">
+                <h2 style="text-align: center; font-size: 42px; margin-bottom: 20px; font-weight: 700;">Choose Your Plan</h2>
+                <p style="text-align: center; font-size: 18px; opacity: 0.9; margin-bottom: 50px;">Select the perfect plan for your needs</p>
+                
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <div class="plan-name">Base</div>
+                        <div class="plan-price">₹99</div>
+                        <div class="plan-period">per month</div>
+                        <div class="plan-description">Limited access to explore AweTales</div>
+                        
+                        <div style="font-weight: 600; margin-bottom: 15px; font-size: 16px;">What's included:</div>
+                        <ul class="plan-features">
+                            <li>Access to selected stories</li>
+                            <li>2 system voices (MBK & PALLU)</li>
+                            <li>Standard audio quality</li>
+                            <li>Email support</li>
+                        </ul>
+                        
+                        <div style="font-weight: 600; margin-bottom: 10px; font-size: 16px;">Limitations:</div>
+                        <ul class="plan-limitations">
+                            <li>No custom voice training</li>
+                            <li>Limited story selection</li>
+                        </ul>
+                        
+                        <button class="plan-button">Get Started</button>
+                    </div>
+
+                    <div class="pricing-card popular">
+                        <div class="popular-badge">Most Popular</div>
+                        <div class="plan-name">Hero</div>
+                        <div class="plan-price">₹199</div>
+                        <div class="plan-period">per month</div>
+                        <div class="plan-description">Great for regular bedtime storytelling</div>
+                        
+                        <div style="font-weight: 600; margin-bottom: 15px; font-size: 16px;">What's included:</div>
+                        <ul class="plan-features">
+                            <li>1 custom voice included</li>
+                            <li>Access to all stories</li>
+                            <li>HD audio quality</li>
+                            <li>Priority email support</li>
+                            <li>Offline downloads</li>
+                        </ul>
+                        
+                        <button class="plan-button">Get Started</button>
+                    </div>
+
+                    <div class="pricing-card">
+                        <div class="plan-name">Super Hero</div>
+                        <div class="plan-price">₹499</div>
+                        <div class="plan-period">per month</div>
+                        <div class="plan-description">The complete AweTales experience</div>
+                        
+                        <div style="font-weight: 600; margin-bottom: 15px; font-size: 16px;">What's included:</div>
+                        <ul class="plan-features">
+                            <li>3 custom voices included</li>
+                            <li>Access to all stories</li>
+                            <li>Exclusive story packs</li>
+                            <li>Premium HD audio quality</li>
+                            <li>Priority chat & phone support</li>
+                            <li>Early access to new features</li>
+                        </ul>
+                        
+                        <button class="plan-button">Get Started</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" style="padding: 80px 0;">
+            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <h2 style="font-size: 42px; margin-bottom: 20px; font-weight: 700;">About Safe Talk AI</h2>
+                <p style="font-size: 20px; line-height: 1.8; opacity: 0.9; margin-bottom: 30px;">
+                    Safe Talk AI was founded with one mission: to create the most secure and intelligent AI conversation platform. We believe everyone deserves privacy without sacrificing the power of artificial intelligence.
+                </p>
+                <p style="font-size: 18px; line-height: 1.8; opacity: 0.85;">
+                    Our team of security experts and AI researchers work tirelessly to ensure your conversations remain private while delivering cutting-edge AI capabilities. With end-to-end encryption, zero data retention, and advanced language models, we're redefining what it means to have safe, intelligent conversations.
+                </p>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Safe Talk AI. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const responses = {
+            "privacy": "At Safe Talk AI, privacy is our top priority. We use end-to-end encryption for all conversations, and we never store your chat history. Your data belongs to you, and only you.",
+            "security": "We employ military-grade encryption, regular security audits, and zero-knowledge architecture. This means even we can't access your conversations - they're completely private.",
+            "features": "Safe Talk AI offers intelligent conversations, 24/7 availability, multi-language support, personalized responses, and complete privacy protection. We're constantly improving to serve you better!",
+            "about": "Safe Talk AI was founded with one mission: to create the most secure and intelligent AI conversation platform. We believe everyone deserves privacy without sacrificing the power of AI.",
+            "pricing": "We offer flexible pricing plans including a free tier to get started. Our premium plans include unlimited conversations, priority support, and advanced features. Contact us for details!",
+            "voice": "Yes! Safe Talk AI supports voice input and output. Just click the microphone button to speak your questions, and I can read my responses aloud to you. It's hands-free and convenient!",
+            "default": "That's a great question! Safe Talk AI is designed to be your secure, intelligent companion for all kinds of conversations. We focus on privacy, security, and providing helpful responses. Is there something specific you'd like to know about our features, security, or pricing?"
+        };
+
+        let isListening = false;
+        let recognition = null;
+        let speechSynthesis = window.speechSynthesis;
+
+        // Smooth scroll to chat section
+        function scrollToChat() {
+            const chatSection = document.querySelector('.chat-section');
+            chatSection.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'center'
+            });
+            
+            // Focus on input after scrolling completes
+            setTimeout(() => {
+                document.getElementById('chatInput').focus();
+            }, 800);
+        }
+
+        // Smooth scroll to any section
+        function scrollToSection(event, sectionId) {
+            event.preventDefault();
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Initialize speech recognition if available
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('chatInput').value = transcript;
+                sendMessage(true); // Pass true to indicate voice message
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error', event.error);
+                stopListening();
+            };
+
+            recognition.onend = function() {
+                stopListening();
+            };
+        }
+
+        function toggleVoice() {
+            if (!recognition) {
+                alert('Voice recognition is not supported in your browser. Please try Chrome or Edge.');
+                return;
+            }
+
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        function startListening() {
+            isListening = true;
+            document.getElementById('voiceButton').classList.add('listening');
+            recognition.start();
+        }
+
+        function stopListening() {
+            isListening = false;
+            document.getElementById('voiceButton').classList.remove('listening');
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+
+        function speakText(text) {
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            // Try to use a natural-sounding voice
+            const voices = speechSynthesis.getVoices();
+            const preferredVoice = voices.find(voice => 
+                voice.name.includes('Google') || 
+                voice.name.includes('Natural') ||
+                voice.name.includes('Premium')
+            );
+            
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            speechSynthesis.speak(utterance);
+        }
+
+        function sendMessage(isVoiceMessage = false) {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user-message';
+            userMsg.innerHTML = `<div class="message-bubble">${message}</div>`;
+            messagesContainer.appendChild(userMsg);
+            
+            input.value = '';
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Generate AI response
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'message ai-message';
+                
+                const lowerMessage = message.toLowerCase();
+                let response = responses.default;
+                
+                for (let key in responses) {
+                    if (lowerMessage.includes(key)) {
+                        response = responses[key];
+                        break;
+                    }
+                }
+                
+                aiMsg.innerHTML = `<div class="message-bubble">${response}</div>`;
+                messagesContainer.appendChild(aiMsg);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // Speak the response if it was a voice message
+                if (isVoiceMessage) {
+                    speakText(response);
+                }
+            }, 800);
+        }
+
+        // Load voices when they're ready
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => {
+                speechSynthesis.getVoices();
+            };
+        }
+    </script>
+</body>
+</html>
