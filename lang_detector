@@ -1,0 +1,20 @@
+import speech_recognition as sr
+from langdetect import detect
+
+# Load your cleaned audio
+r = sr.Recognizer()
+audio_file = sr.AudioFile(r"C:\Users\varma\OneDrive\Desktop\hack2\safe-talk-AI\output_audio.wav")  # Your noise-suppressed output
+
+with audio_file as source:
+    audio_data = r.record(source)
+
+# Convert speech to text
+try:
+    text = r.recognize_google(audio_data)
+    print("Transcribed text:", text)
+    
+    # Detect language of the text
+    language = detect(text)
+    print("Detected language:", language)  # e.g., 'en' for English, 'hi' for Hindi
+except Exception as e:
+    print("Error:", e)
