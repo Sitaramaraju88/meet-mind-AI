@@ -1,0 +1,18 @@
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #0f172a;
+  color: white;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+#transcript {
+  margin-top: 10px;
+  background: #1e293b;
+  padding: 10px;
+}
