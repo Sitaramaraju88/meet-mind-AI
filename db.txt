@@ -107,3 +107,9 @@ The service allows families to preserve memories in a digital storytelling libra
 Parents can combine multiple stories into playlists.
 The AI adapts voice tone based on emotional context.
 Children can develop empathy by hearing familiar voices express emotions.
+
+SafeTalk AI is a voice-powered assistant that helps answer questions.
+You can ask questions by recording your voice using the microphone button.
+The AI will transcribe your speech, find relevant information, and respond with audio.
+This system uses Whisper for speech recognition and gTTS for text-to-speech.
+For emergencies, please call 911 or your local emergency services.

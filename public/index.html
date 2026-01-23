@@ -1,78 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>SafeTalk AI</title>
+<meta charset="UTF-8">
+<title>SafeTalk AI</title>
+
+<style>
+body { font-family: Arial; padding: 20px }
+button { padding: 10px 15px; margin-right: 10px }
+pre { background: #f4f4f4; padding: 10px }
+#playBtn { background: #4CAF50; color: white; display: none; }
+#playBtn.show { display: inline-block; }
+</style>
 </head>
+
 <body>
-  <h1>SafeTalk AI</h1>
 
-  <button id="recordBtn">Start Recording</button>
-  <p id="status"></p>
+<h2>SafeTalk AI</h2>
 
-  <p><strong>Transcribed Text:</strong></p>
-  <pre id="transcript"></pre>
+<button id="start">🎤 Start</button>
+<button id="stop" disabled>⏹ Stop</button>
+<button id="playBtn">🔊 Play Response</button>
 
-  <p><strong>Reply:</strong></p>
-  <pre id="reply"></pre>
+<h3>Transcription</h3>
+<pre id="text">—</pre>
 
-  <audio id="audioPlayer" controls></audio>
+<h3>Reply</h3>
+<pre id="reply">—</pre>
 
-  <script>
-    let mediaRecorder;
-    let audioChunks = [];
+<h3>Audio Response</h3>
+<audio id="audio" controls></audio>
 
-    const recordBtn = document.getElementById("recordBtn");
-    const statusText = document.getElementById("status");
-    const transcriptDiv = document.getElementById("transcript");
-    const replyDiv = document.getElementById("reply");
-    const audioPlayer = document.getElementById("audioPlayer");
+<script>
+const API = "http://127.0.0.1:8000";
 
-    recordBtn.onclick = async () => {
-      if (!mediaRecorder || mediaRecorder.state === "inactive") {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        audioChunks = [];
+const startBtn = document.getElementById("start");
+const stopBtn = document.getElementById("stop");
+const playBtn = document.getElementById("playBtn");
+const textEl = document.getElementById("text");
+const replyEl = document.getElementById("reply");
+const audioEl = document.getElementById("audio");
 
-        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+let recorder;
+let chunks = [];
+let pendingAudioUrl = null;
 
-        mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
-          audioChunks = [];
+// 🚫 absolutely prevent reload
+window.addEventListener("submit", e => e.preventDefault());
 
-          const formData = new FormData();
-          formData.append("file", audioBlob, "recording.webm");
+// 🔊 Manual play button for when autoplay fails
+playBtn.onclick = () => {
+  if (pendingAudioUrl) {
+    audioEl.src = pendingAudioUrl;
+    audioEl.load();
+    audioEl.play().then(() => {
+      playBtn.classList.remove("show");
+    }).catch(e => {
+      console.error("Play failed:", e);
+    });
+  }
+};
 
-          statusText.innerText = "Processing...";
+startBtn.onclick = async () => {
+  // 🔧 Reset audio element completely
+  audioEl.pause();
+  audioEl.currentTime = 0;
+  audioEl.src = "";
+  playBtn.classList.remove("show");
+  pendingAudioUrl = null;
+  
+  chunks = [];
 
-          try {
-            const res = await fetch("http://localhost:8000/api/process-audio", {
-              method: "POST",
-              body: formData
-            });
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  recorder = new MediaRecorder(stream);
 
-            const data = await res.json();
+  recorder.ondataavailable = e => chunks.push(e.data);
 
-            transcriptDiv.innerText = data.text || "";
-            replyDiv.innerText = data.reply || "";
-            if (data.audio_url) {
-              audioPlayer.src = "http://localhost:8000" + data.audio_url;
-              audioPlayer.load();
-            }
-            statusText.innerText = "Done";
-          } catch (err) {
-            console.error(err);
-            statusText.innerText = "Error";
-          }
-        };
+  recorder.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop());
+    sendAudio(new Blob(chunks, { type: "audio/webm" }));
+  };
 
-        mediaRecorder.start();
-        recordBtn.innerText = "Stop Recording";
-      } else {
-        mediaRecorder.stop();
-        recordBtn.innerText = "Start Recording";
-      }
-    };
-  </script>
+  recorder.start();
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+};
+
+stopBtn.onclick = () => {
+  if (recorder && recorder.state !== "inactive") {
+    recorder.stop();
+  }
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+};
+
+async function sendAudio(blob) {
+  textEl.textContent = "Processing...";
+  replyEl.textContent = "Waiting...";
+
+  const fd = new FormData();
+  fd.append("file", blob, "recording.webm");
+
+  try {
+    const res = await fetch(API + "/api/process-audio", {
+      method: "POST",
+      body: fd
+    });
+
+    const data = await res.json();
+
+    textEl.textContent = data.text;
+    replyEl.textContent = data.reply;
+
+    if (data.audio_url) {
+      const fullUrl = API + data.audio_url + "?t=" + Date.now();
+      pendingAudioUrl = fullUrl;
+      
+      // 🔧 Create fresh audio element to avoid caching issues
+      const newAudio = new Audio();
+      
+      newAudio.oncanplaythrough = () => {
+        console.log("Audio ready, attempting play...");
+        // Replace the audio element's source
+        audioEl.src = fullUrl;
+        audioEl.load();
+        
+        // Try to auto-play
+        const playPromise = audioEl.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            console.log("Auto-play successful!");
+            playBtn.classList.remove("show");
+          }).catch(error => {
+            console.log("Auto-play blocked, showing play button:", error);
+            playBtn.classList.add("show");
+          });
+        }
+      };
+      
+      newAudio.onerror = (e) => {
+        console.error("Audio load error:", e);
+        playBtn.classList.add("show");
+      };
+      
+      // Start loading
+      newAudio.src = fullUrl;
+      newAudio.load();
+    }
+  } catch (error) {
+    console.error("Error sending audio:", error);
+    textEl.textContent = "Error processing audio";
+    replyEl.textContent = "Error";
+  }
+}
+</script>
+
 </body>
 </html>
