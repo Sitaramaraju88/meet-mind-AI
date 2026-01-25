@@ -1,0 +1,11 @@
+ffmpeg-python
+torch
+torchaudio
+silero-vad
+pyannote.audio
+openai-whisper
+transformers
+TTS
+pydub
+numpy
+noisereduce
