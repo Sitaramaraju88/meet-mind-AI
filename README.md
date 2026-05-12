@@ -1,6 +1,6 @@
-# SafeTalk AI – Voice-Based Intelligent Avatar System
+# Meet Mind AI – Voice-Based Intelligent Avatar System
 
-SafeTalk AI is a voice-enabled conversational avatar system that allows users to speak naturally with an AI assistant. The system processes audio or video input, understands user intent, retrieves relevant knowledge using **Retrieval-Augmented Generation (RAG)**, and responds with safe, context-aware spoken output.
+Meet Mind AI is a voice-enabled conversational avatar system that allows users to speak naturally with an AI assistant. The system processes audio or video input, understands user intent, retrieves relevant knowledge using **Retrieval-Augmented Generation (RAG)**, and responds with safe, context-aware spoken output.
 
 The project focuses on **accessibility**, **safety**, and **natural interaction**.
 
